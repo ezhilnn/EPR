@@ -1,0 +1,209 @@
+/* ============================================
+   REGISTER PAGE STYLES
+   ============================================ */
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.registerBox {
+  width: 100%;
+  max-width: 580px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.title {
+  font-size: var(--font-3xl);
+  font-weight: 700;
+  color: white;
+  margin-bottom: var(--spacing-sm);
+}
+
+.subtitle {
+  font-size: var(--font-base);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* User Type Section */
+.userTypeSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.fieldLabel {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.userTypeGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+}
+
+.userTypeCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--bg-card);
+}
+
+.userTypeCard:hover {
+  border-color: var(--color-success);
+}
+
+.userTypeCardActive {
+  border-color: var(--color-success);
+  background-color: rgba(37, 193, 95, 0.05);
+}
+
+.radioInput {
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.userTypeContent {
+  flex: 1;
+}
+
+.userTypeLabel {
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--color-heading);
+  margin-bottom: var(--spacing-xs);
+}
+
+.userTypeDesc {
+  font-size: var(--font-sm);
+  color: var(--color-text);
+}
+
+/* Password Strength Indicator */
+.passwordStrength {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+
+.strengthBar {
+  flex: 1;
+  height: 6px;
+  background-color: #E0E0E0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.strengthBarFill {
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.strengthLabel {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  min-width: 60px;
+}
+
+/* Terms & Conditions */
+.termsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.termsLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  font-size: var(--font-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.termsCheckbox {
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.termsLink {
+  color: var(--color-success);
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.termsLink:hover {
+  color: #1FA84F;
+  text-decoration: underline;
+}
+
+.termsError {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-sm);
+  color: var(--color-alert);
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.footerText {
+  font-size: var(--font-sm);
+  color: var(--color-text);
+}
+
+.loginLink {
+  color: var(--color-success);
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.loginLink:hover {
+  color: #1FA84F;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .container {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .userTypeGrid {
+    grid-template-columns: 1fr;
+  }
+}
