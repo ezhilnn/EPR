@@ -121,8 +121,8 @@ func Load() (*Config, error) {
 		Email: EmailConfig{
 			SMTPHost:     getEnv("SMTP_HOST", "smtp.gmail.com"),
 			SMTPPort:     getEnvAsInt("SMTP_PORT", 587),
-			SMTPUser:     getEnv("SMTP_USER", "ezhiln03s28@gmail.com"),
-			SMTPPassword: getEnv("SMTP_PASSWORD", "ebtxrnoxeermtapn "),
+			SMTPUser:     getEnv("SMTP_USER", "@gmail.com"),
+			SMTPPassword: getEnv("SMTP_PASSWORD", " "),
 			FromEmail:    getEnv("FromEmail", "no-reply-epr@epr.com"),
 		},
 		Redis: RedisConfig{
