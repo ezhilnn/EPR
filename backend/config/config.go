@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+
 	"github.com/joho/godotenv"
 )
 
@@ -13,19 +14,21 @@ import (
 type Config struct {
 	// Server settings
 	Server ServerConfig
-	
+
 	// Database settings
 	Database DatabaseConfig
-	
+
 	// Redis settings
 	Redis RedisConfig
-	
+
+	Email EmailConfig
+
 	// JWT settings
 	JWT JWTConfig
-	
+
 	// Pricing settings
 	Pricing PricingConfig
-	
+
 	// Application settings
 	App AppConfig
 }
@@ -60,24 +63,31 @@ type RedisConfig struct {
 
 // JWTConfig holds JWT token configuration
 type JWTConfig struct {
-	Secret              string
-	AccessTokenExpiry   time.Duration
-	RefreshTokenExpiry  time.Duration
+	Secret             string
+	AccessTokenExpiry  time.Duration
+	RefreshTokenExpiry time.Duration
 }
 
 // PricingConfig holds billing and pricing rules
 type PricingConfig struct {
-	BillGenerationFee           float64 // Fee to generate a bill (e.g., 0.50)
-	VerificationMinFee          float64 // Minimum verification fee (e.g., 1.00)
-	VerificationMaxFee          float64 // Maximum verification fee (e.g., 10.00)
-	VerificationPercentage      float64 // Percentage of bill amount (e.g., 0.01 for 1%)
-	LoyaltyFreeEveryN           int     // Free verification every N verifications
+	BillGenerationFee      float64 // Fee to generate a bill (e.g., 0.50)
+	VerificationMinFee     float64 // Minimum verification fee (e.g., 1.00)
+	VerificationMaxFee     float64 // Maximum verification fee (e.g., 10.00)
+	VerificationPercentage float64 // Percentage of bill amount (e.g., 0.01 for 1%)
+	LoyaltyFreeEveryN      int     // Free verification every N verifications
+}
+type EmailConfig struct {
+	SMTPHost     string
+	SMTPPort     int
+	SMTPUser     string
+	SMTPPassword string
+	FromEmail    string
 }
 
 // AppConfig holds general application settings
 type AppConfig struct {
-	FrontendURL string // Frontend URL for CORS
-	RateLimitRPM int   // Rate limit: requests per minute
+	FrontendURL  string // Frontend URL for CORS
+	RateLimitRPM int    // Rate limit: requests per minute
 }
 
 // Load reads configuration from environment variables
@@ -108,6 +118,13 @@ func Load() (*Config, error) {
 			MaxIdleConns:    getEnvAsInt("DB_MAX_IDLE_CONNECTIONS", 5),
 			ConnMaxLifetime: time.Hour,
 		},
+		Email: EmailConfig{
+			SMTPHost:     getEnv("SMTP_HOST", "smtp.gmail.com"),
+			SMTPPort:     getEnvAsInt("SMTP_PORT", 587),
+			SMTPUser:     getEnv("SMTP_USER", "ezhiln03s28@gmail.com"),
+			SMTPPassword: getEnv("SMTP_PASSWORD", "ebtxrnoxeermtapn "),
+			FromEmail:    getEnv("FromEmail", "no-reply-epr@epr.com"),
+		},
 		Redis: RedisConfig{
 			Host:     getEnv("REDIS_HOST", "localhost"),
 			Port:     getEnv("REDIS_PORT", "6379"),
@@ -115,9 +132,9 @@ func Load() (*Config, error) {
 			DB:       getEnvAsInt("REDIS_DB", 0),
 		},
 		JWT: JWTConfig{
-			Secret:              getEnv("JWT_SECRET", "your-super-secret-jwt-key-change-this-in-production"),
-			AccessTokenExpiry:   parseDuration(getEnv("JWT_ACCESS_TOKEN_EXPIRY", "15m"), 15*time.Minute),
-			RefreshTokenExpiry:  parseDuration(getEnv("JWT_REFRESH_TOKEN_EXPIRY", "7d"), 7*24*time.Hour),
+			Secret:             getEnv("JWT_SECRET", "your-super-secret-jwt-key-change-this-in-production"),
+			AccessTokenExpiry:  parseDuration(getEnv("JWT_ACCESS_TOKEN_EXPIRY", "15m"), 15*time.Minute),
+			RefreshTokenExpiry: parseDuration(getEnv("JWT_REFRESH_TOKEN_EXPIRY", "7d"), 7*24*time.Hour),
 		},
 		Pricing: PricingConfig{
 			BillGenerationFee:      getEnvAsFloat("BILL_GENERATION_FEE", 0.50),
@@ -143,8 +160,8 @@ func Load() (*Config, error) {
 // Validate checks if configuration is valid
 func (c *Config) Validate() error {
 	// Check if JWT secret is default (security risk!)
-	if c.JWT.Secret == "your-super-secret-jwt-key-change-this-in-production" && 
-	   c.Server.Environment == "production" {
+	if c.JWT.Secret == "your-super-secret-jwt-key-change-this-in-production" &&
+		c.Server.Environment == "production" {
 		return fmt.Errorf("JWT_SECRET must be changed in production")
 	}
 
@@ -201,12 +218,12 @@ func getEnvAsInt(key string, defaultValue int) int {
 	if valueStr == "" {
 		return defaultValue
 	}
-	
+
 	value, err := strconv.Atoi(valueStr)
 	if err != nil {
 		return defaultValue
 	}
-	
+
 	return value
 }
 
@@ -216,12 +233,12 @@ func getEnvAsFloat(key string, defaultValue float64) float64 {
 	if valueStr == "" {
 		return defaultValue
 	}
-	
+
 	value, err := strconv.ParseFloat(valueStr, 64)
 	if err != nil {
 		return defaultValue
 	}
-	
+
 	return value
 }
 
@@ -236,12 +253,12 @@ func parseDuration(durationStr string, defaultDuration time.Duration) time.Durat
 		}
 		return time.Duration(days) * 24 * time.Hour
 	}
-	
+
 	// Parse standard duration (e.g., "15m", "2h")
 	duration, err := time.ParseDuration(durationStr)
 	if err != nil {
 		return defaultDuration
 	}
-	
+
 	return duration
 }

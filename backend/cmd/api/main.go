@@ -69,12 +69,19 @@ func main() {
 	// Initialize services
 	billService := services.NewBillService(billRepo, userRepo, cfg)
 	verificationService := services.NewVerificationService(verificationRepo, billRepo, userRepo, cfg)
+	// Initialize PDF service
+	pdfService := services.NewPDFService(cfg.App.FrontendURL)
+
+	// Initialize Email service
+	emailService := services.NewEmailService(cfg, billRepo, userRepo, pdfService)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(userRepo, cfg)
 	billHandler := handlers.NewBillHandler(billService)
 	verificationHandler := handlers.NewVerificationHandler(verificationService)
 	dashboardHandler := handlers.NewDashboardHandler(billService, verificationService)
+	pdfHandler := handlers.NewPDFHandler(billRepo, pdfService)
+	emailHandler := handlers.NewEmailHandler(emailService)
 
 	// Set Gin mode
 	if cfg.IsProduction() {
@@ -90,7 +97,7 @@ func main() {
 	router.Use(middleware.CORSMiddleware([]string{cfg.App.FrontendURL, "*"}))
 
 	// Setup routes
-	setupRoutes(router, db, redisClient, cfg, authHandler, billHandler, verificationHandler, dashboardHandler, billRepo, verificationRepo, userRepo)
+	setupRoutes(router, db, redisClient, cfg, authHandler, billHandler, verificationHandler, dashboardHandler, billRepo, verificationRepo, userRepo, pdfHandler, emailHandler)
 
 	// Create HTTP server
 	srv := &http.Server{
@@ -139,6 +146,8 @@ func setupRoutes(
 	billRepo *repository.BillRepository,
 	verificationRepo *repository.VerificationRepository,
 	userRepo *repository.UserRepository,
+	pdfHandler *handlers.PDFHandler,
+	emailHandler *handlers.EmailHandler,
 ) {
 	// API v1 group
 	v1 := router.Group("/api/v1")
@@ -203,6 +212,17 @@ func setupRoutes(
 
 		// Bill verification (public - no auth required)
 		v1.GET("/bills/verify/:bill_number", billHandler.VerifyBill)
+		v1.GET("public/bills/:bill_number/pdf", func(c *gin.Context) {
+			// Try to get auth, but don't require it for public bills
+			authHeader := c.GetHeader("Authorization")
+			if authHeader != "" {
+				middleware.AuthMiddleware(cfg.JWT.Secret)(c)
+				if c.IsAborted() {
+					return
+				}
+			}
+			pdfHandler.DownloadBillPDF(c)
+		})
 
 		// Verification endpoints
 		verify := v1.Group("/verify")
@@ -265,13 +285,20 @@ func setupRoutes(
 			bills.GET("/stats", billHandler.GetBillStats)
 
 			// Single bill operations
-			bills.GET("/:id", billHandler.GetBill)
+			bills.GET("id/:id", billHandler.GetBill)
 			bills.GET("/number/:bill_number", billHandler.GetBillByNumber)
-			bills.GET("/:id/qrcode", billHandler.DownloadBillQR)
-			bills.GET("/:id/verifications", func(c *gin.Context) {
+			bills.GET("id/:id/qrcode", billHandler.DownloadBillQR)
+			bills.GET("id/:id/verifications", func(c *gin.Context) {
 				handlers.GetBillVerificationLogs(c, billRepo, verificationRepo, userRepo)
 			})
-			bills.DELETE("/:id", billHandler.DeleteBill)
+			bills.DELETE("id/:id", billHandler.DeleteBill)
+			bills.GET("/:bill_number/pdf", func(c *gin.Context) {
+				// This endpoint has optional auth - it checks inside the handler
+				pdfHandler.DownloadBillPDF(c)
+			})
+
+			// Email Bill - requires authentication
+			bills.POST("/:bill_number/email", emailHandler.SendBillEmail)
 		}
 
 		// Protected routes example (we'll add more later)

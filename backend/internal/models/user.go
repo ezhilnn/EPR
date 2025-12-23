@@ -31,6 +31,7 @@ const (
 type User struct {
 	// Primary fields
 	ID               string    `db:"id" json:"id"`
+	FullName         string     `db:"full_name" json:"full_name"`
 	Email            string    `db:"email" json:"email"`
 	PasswordHash     string    `db:"password_hash" json:"-"` // Never send password in JSON
 	Role             UserRole  `db:"role" json:"role"`
@@ -75,6 +76,7 @@ type User struct {
 func (u *User) PublicUser() map[string]interface{} {
 	return map[string]interface{}{
 		"id":                 u.ID,
+		"full_name":		  u.FullName,
 		"email":              u.Email,
 		"role":               u.Role,
 		"organization_name":  u.OrganizationName,
@@ -88,6 +90,7 @@ func (u *User) PublicUser() map[string]interface{} {
 
 // CreateUserRequest represents the request body for user registration
 type CreateUserRequest struct {
+	FullName         string   `json:"full_name" binding:"required"`
 	Email            string   `json:"email" binding:"required,email"`
 	Password         string   `json:"password" binding:"required,min=8"`
 	OrganizationName string   `json:"organization_name" binding:"required"`

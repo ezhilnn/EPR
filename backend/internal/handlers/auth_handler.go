@@ -68,6 +68,7 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 
 	// Create user object
 	user := &models.User{
+		FullName: req.FullName,
 		Email:            req.Email,
 		PasswordHash:     hashedPassword,
 		Role:             req.Role,

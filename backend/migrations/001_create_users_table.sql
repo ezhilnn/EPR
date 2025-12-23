@@ -12,7 +12,7 @@ CREATE TYPE kyc_status AS ENUM ('pending', 'approved', 'rejected', 'not_needed')
 CREATE TABLE users (
     -- Primary key
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    
+    full_name VARCHAR(255) NOT NULL,
     -- Authentication
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,

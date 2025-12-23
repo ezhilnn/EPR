@@ -24,10 +24,10 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 func (r *UserRepository) Create(ctx context.Context, user *models.User) error {
 	query := `
 		INSERT INTO users (
-			email, password_hash, role, organization_name, organization_type,
+			full_name, email, password_hash, role, organization_name, organization_type,
 			gstin, pan, kyc_status, wallet_balance, is_active, is_email_verified
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 		) RETURNING id, created_at, updated_at
 	`
 
